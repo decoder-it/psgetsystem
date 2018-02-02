@@ -1,10 +1,10 @@
-$mc = @"
+$mycode = @"
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
-public class PC
+public class MyProcess
 {
     [DllImport("kernel32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -79,73 +79,70 @@ public class PC
         public int bInheritHandle;
     }
 
-	public static void CP(int parentProcessId, string command)
+	public static void CreateProcessFromParent(int ppid, string command)
     {
         const uint EXTENDED_STARTUPINFO_PRESENT = 0x00080000;
         const uint CREATE_NEW_CONSOLE = 0x00000010;
 		const int PROC_THREAD_ATTRIBUTE_PARENT_PROCESS = 0x00020000;
 		
 
-        var pInfo = new PROCESS_INFORMATION();
-        var sInfoEx = new STARTUPINFOEX();
-        sInfoEx.StartupInfo.cb = Marshal.SizeOf(sInfoEx);
+        var pi = new PROCESS_INFORMATION();
+        var si = new STARTUPINFOEX();
+        si.StartupInfo.cb = Marshal.SizeOf(si);
         IntPtr lpValue = IntPtr.Zero;
 
         try
         {
-            if (parentProcessId > 0)
-            {
-                var lpSize = IntPtr.Zero;
-                InitializeProcThreadAttributeList(IntPtr.Zero, 1, 0, ref lpSize);
-                sInfoEx.lpAttributeList = Marshal.AllocHGlobal(lpSize);
-                InitializeProcThreadAttributeList(sInfoEx.lpAttributeList, 1, 0, ref lpSize);
-                var parentHandle = Process.GetProcessById(parentProcessId).Handle;
-                lpValue = Marshal.AllocHGlobal(IntPtr.Size);
-                Marshal.WriteIntPtr(lpValue, parentHandle);
-
-                UpdateProcThreadAttribute(
-                    sInfoEx.lpAttributeList,
-                    0,
-                    (IntPtr)PROC_THREAD_ATTRIBUTE_PARENT_PROCESS,
-                    lpValue,
-                    (IntPtr)IntPtr.Size,
-                    IntPtr.Zero,
-                    IntPtr.Zero);
-                
-            }
             
-            var pSec = new SECURITY_ATTRIBUTES();
-            var tSec = new SECURITY_ATTRIBUTES();
-            pSec.nLength = Marshal.SizeOf(pSec);
-            tSec.nLength = Marshal.SizeOf(tSec);
-            var lpApplicationName = Path.Combine(Environment.SystemDirectory, command);
+            var lpSize = IntPtr.Zero;
+            InitializeProcThreadAttributeList(IntPtr.Zero, 1, 0, ref lpSize);
+            si.lpAttributeList = Marshal.AllocHGlobal(lpSize);
+            InitializeProcThreadAttributeList(si.lpAttributeList, 1, 0, ref lpSize);
+            var phandle = Process.GetProcessById(ppid).Handle;
+            lpValue = Marshal.AllocHGlobal(IntPtr.Size);
+            Marshal.WriteIntPtr(lpValue, phandle);
+
+            UpdateProcThreadAttribute(
+                si.lpAttributeList,
+                0,
+                (IntPtr)PROC_THREAD_ATTRIBUTE_PARENT_PROCESS,
+                lpValue,
+                (IntPtr)IntPtr.Size,
+                IntPtr.Zero,
+                IntPtr.Zero);
+            
+                   
+            var pattr = new SECURITY_ATTRIBUTES();
+            var tattr = new SECURITY_ATTRIBUTES();
+            pattr.nLength = Marshal.SizeOf(pattr);
+            tattr.nLength = Marshal.SizeOf(tattr);
             Console.Write("Starting: " + command  + "...");
-			var b= CreateProcess(lpApplicationName, null, ref pSec, ref tSec, false,EXTENDED_STARTUPINFO_PRESENT | CREATE_NEW_CONSOLE, IntPtr.Zero, null, ref sInfoEx, out pInfo);
+			var b= CreateProcess(command, null, ref pattr, ref tattr, false,EXTENDED_STARTUPINFO_PRESENT | CREATE_NEW_CONSOLE, IntPtr.Zero, null, ref si, out pi);
 			Console.WriteLine(b);
 			
         }
         finally
         {
             
-            if (sInfoEx.lpAttributeList != IntPtr.Zero)
+            if (si.lpAttributeList != IntPtr.Zero)
             {
-                DeleteProcThreadAttributeList(sInfoEx.lpAttributeList);
-                Marshal.FreeHGlobal(sInfoEx.lpAttributeList);
+                DeleteProcThreadAttributeList(si.lpAttributeList);
+                Marshal.FreeHGlobal(si.lpAttributeList);
             }
             Marshal.FreeHGlobal(lpValue);
             
-            if (pInfo.hProcess != IntPtr.Zero)
+            if (pi.hProcess != IntPtr.Zero)
             {
-                CloseHandle(pInfo.hProcess);
+                CloseHandle(pi.hProcess);
             }
-            if (pInfo.hThread != IntPtr.Zero)
+            if (pi.hThread != IntPtr.Zero)
             {
-                CloseHandle(pInfo.hThread);
+                CloseHandle(pi.hThread);
             }
         }
     }
 
 }
 "@
- Add-Type -TypeDefinition $mc
+ Add-Type -TypeDefinition $mycode
  
