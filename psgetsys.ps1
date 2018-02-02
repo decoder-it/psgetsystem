@@ -1,4 +1,4 @@
-$mc = @"
+$mycode = @"
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -144,5 +144,5 @@ public class MyProcess
 
 }
 "@
- Add-Type -TypeDefinition $mc
+ Add-Type -TypeDefinition $mycode
  
