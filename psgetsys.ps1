@@ -145,4 +145,8 @@ public class MyProcess
 }
 "@
  Add-Type -TypeDefinition $mycode
+<<<<<<< HEAD
  
+=======
+ 
+>>>>>>> e34ad8bb0d41704b2bcb4aae3a8fe5e77c00124b
