@@ -147,5 +147,6 @@ public class MyProcess
 }
 "@
  Add-Type -TypeDefinition $mycode
+
 #Autoinvoke?
 #MyProcess]::CreateProcessFromParent($args[0],$args[1])
