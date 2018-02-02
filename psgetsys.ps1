@@ -1,3 +1,5 @@
+#Simple powershell/C# to spawn a process under a different parent process 
+#usage: import-module psgetsys.ps1;  [MyProcess]::CreateProcessFromParent(<system_pid>,<command_to_execute>)
 $mycode = @"
 using System;
 using System.Diagnostics;
@@ -145,3 +147,5 @@ public class MyProcess
 }
 "@
  Add-Type -TypeDefinition $mycode
+#Autoinvoke?
+#MyProcess]::CreateProcessFromParent($args[0],$args[1])
