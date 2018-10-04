@@ -95,7 +95,7 @@ public class MyProcess
 
         try
         {
-            
+            Process.EnterDebugMode();
             var lpSize = IntPtr.Zero;
             InitializeProcThreadAttributeList(IntPtr.Zero, 1, 0, ref lpSize);
             si.lpAttributeList = Marshal.AllocHGlobal(lpSize);
