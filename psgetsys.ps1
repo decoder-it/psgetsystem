@@ -151,6 +151,6 @@ public class MyProcess
 }
 "@
  Add-Type -TypeDefinition $mycode
-#Enable-Privilege -Privilege SeDebugprivilege
+
 #Autoinvoke?
 [MyProcess]::CreateProcessFromParent($args[0],$args[1])
