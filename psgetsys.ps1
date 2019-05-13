@@ -9,6 +9,9 @@ using System.Runtime.InteropServices;
 public class MyProcess
 {
     [DllImport("kernel32.dll")]
+    static extern uint GetLastError();
+    
+	[DllImport("kernel32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     static extern bool CreateProcess(
         string lpApplicationName, string lpCommandLine, ref SECURITY_ATTRIBUTES lpProcessAttributes,
@@ -92,18 +95,19 @@ public class MyProcess
         var si = new STARTUPINFOEX();
         si.StartupInfo.cb = Marshal.SizeOf(si);
         IntPtr lpValue = IntPtr.Zero;
-
+        Process.EnterDebugMode();
         try
         {
-            Process.EnterDebugMode();
+            
             var lpSize = IntPtr.Zero;
             InitializeProcThreadAttributeList(IntPtr.Zero, 1, 0, ref lpSize);
             si.lpAttributeList = Marshal.AllocHGlobal(lpSize);
             InitializeProcThreadAttributeList(si.lpAttributeList, 1, 0, ref lpSize);
             var phandle = Process.GetProcessById(ppid).Handle;
+            Console.WriteLine("[+] Got Handle for ppid: {0}", ppid); 
             lpValue = Marshal.AllocHGlobal(IntPtr.Size);
             Marshal.WriteIntPtr(lpValue, phandle);
-
+            
             UpdateProcThreadAttribute(
                 si.lpAttributeList,
                 0,
@@ -113,14 +117,14 @@ public class MyProcess
                 IntPtr.Zero,
                 IntPtr.Zero);
             
-                   
+            Console.WriteLine("[+] Updated proc attribute list"); 
             var pattr = new SECURITY_ATTRIBUTES();
             var tattr = new SECURITY_ATTRIBUTES();
             pattr.nLength = Marshal.SizeOf(pattr);
             tattr.nLength = Marshal.SizeOf(tattr);
-            Console.Write("Starting: " + command  + "...");
+            Console.Write("[+] Starting " + command  + "...");
 			var b= CreateProcess(command, null, ref pattr, ref tattr, false,EXTENDED_STARTUPINFO_PRESENT | CREATE_NEW_CONSOLE, IntPtr.Zero, null, ref si, out pi);
-			Console.WriteLine(b);
+			Console.WriteLine(b+ " - pid: " + pi.dwProcessId+ " - Last error: "  +GetLastError() );
 			
         }
         finally
@@ -147,6 +151,6 @@ public class MyProcess
 }
 "@
  Add-Type -TypeDefinition $mycode
-
+#Enable-Privilege -Privilege SeDebugprivilege
 #Autoinvoke?
-#MyProcess]::CreateProcessFromParent($args[0],$args[1])
+[MyProcess]::CreateProcessFromParent($args[0],$args[1])
