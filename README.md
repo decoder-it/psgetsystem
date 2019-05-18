@@ -4,7 +4,7 @@ https://decoder.cloud/2018/02/02/getting-system/
 
 PS> . .\psgetsys.ps1
 
-PS> [MyProcess]::CreateProcessFromParent(<system_pid>,<command_to_execute>)
+PS> [MyProcess]::CreateProcessFromParent(<system_pid>,<command_to_execute>, <optional command line argument>)
 
 
 
