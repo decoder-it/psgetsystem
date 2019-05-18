@@ -84,7 +84,7 @@ public class MyProcess
         public int bInheritHandle;
     }
 
-	public static void CreateProcessFromParent(int ppid, string command)
+	public static void CreateProcessFromParent(int ppid, string command, string cmdargs)
     {
         const uint EXTENDED_STARTUPINFO_PRESENT = 0x00080000;
         const uint CREATE_NEW_CONSOLE = 0x00000010;
@@ -123,7 +123,7 @@ public class MyProcess
             pattr.nLength = Marshal.SizeOf(pattr);
             tattr.nLength = Marshal.SizeOf(tattr);
             Console.Write("[+] Starting " + command  + "...");
-			var b= CreateProcess(command, null, ref pattr, ref tattr, false,EXTENDED_STARTUPINFO_PRESENT | CREATE_NEW_CONSOLE, IntPtr.Zero, null, ref si, out pi);
+			var b= CreateProcess(command, cmdargs, ref pattr, ref tattr, false,EXTENDED_STARTUPINFO_PRESENT | CREATE_NEW_CONSOLE, IntPtr.Zero, null, ref si, out pi);
 			Console.WriteLine(b+ " - pid: " + pi.dwProcessId+ " - Last error: "  +GetLastError() );
 			
         }
@@ -153,4 +153,9 @@ public class MyProcess
  Add-Type -TypeDefinition $mycode
 
 #Autoinvoke?
-[MyProcess]::CreateProcessFromParent($args[0],$args[1])
+ $cmdargs=""
+if($args.Length -eq 3)
+{
+  $cmdargs= $args[2] + " " + $args[3]
+}
+[MyProcess]::CreateProcessFromParent($args[0],$args[1],$cmdargs)
