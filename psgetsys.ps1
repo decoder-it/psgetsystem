@@ -158,4 +158,5 @@ if($args.Length -eq 3)
 {
   $cmdargs= $args[2] + " " + $args[3]
 }
-[MyProcess]::CreateProcessFromParent($args[0],$args[1],$cmdargs)
+
+#[MyProcess]::CreateProcessFromParent($args[0],$args[1],$cmdargs)
