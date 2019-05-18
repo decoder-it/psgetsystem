@@ -156,7 +156,7 @@ public class MyProcess
  $cmdargs=""
 if($args.Length -eq 3)
 {
-  $cmdargs= $args[2] + " " + $args[3]
+  $cmdargs= $args[1] + " " + $args[2]
 }
 
 #[MyProcess]::CreateProcessFromParent($args[0],$args[1],$cmdargs)
