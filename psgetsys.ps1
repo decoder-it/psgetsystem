@@ -1,5 +1,5 @@
 #Simple powershell/C# to spawn a process under a different parent process 
-#usage: import-module psgetsys.ps1;  [MyProcess]::CreateProcessFromParent(<system_pid>,<command_to_execute>)
+#usage: ipmo psgetsys.ps1;  ImpersonateFromParentPid -ppid <parent pid> -command <command to execute> -cmdargs <command arguments>
 $mycode = @"
 using System;
 using System.Diagnostics;
